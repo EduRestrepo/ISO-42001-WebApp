@@ -1,289 +1,149 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ISO/IEC 42001 Tracker</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <style>
-    /* Inline fix for layout during transition */
-    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-    .toast { background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 12px; box-shadow: var(--shadow-md); animation: slideIn 0.3s ease-out; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISO 42001 Implementation Tracker v2.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <div id="toastContainer" class="toast-container"></div>
-  <header class="app-header">
-    <img src="assets/logo.png" class="app-logo" alt="ISO/IEC 42001 Logo"/>
-    <div>
-      <h1>ISO/IEC 42001 Tracker</h1>
-      <p class="subtitle">Seguimiento de implementación — Autor: <strong>Eduardo Restrepo</strong> — Versión 1.5</p>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>ISO 42001 v2.0</h3>
+            <p style="font-size: 12px; opacity: 0.6;">Enterprise Tracker</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-tab="dashboard">Dashboard</a>
+            <a href="#" class="nav-item" data-tab="controles">Controles</a>
+            <a href="#" class="nav-item" data-tab="accionables">Accionables</a>
+            <a href="#" class="nav-item" data-tab="participantes">Participantes</a>
+            <a href="#" class="nav-item" data-tab="config">Configuración</a>
+            <a href="#" class="nav-item" data-tab="admin">Administración</a>
+        </nav>
+        <div style="padding: 24px; margin-top: auto; font-size: 12px; color: #64748b;">
+            v1.6-Enterprise<br>© 2025 Eduardo Restrepo
+        </div>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="top-bar">
+            <h2 id="pageTitle">Resumen Ejecutivo</h2>
+            <div id="userInfo">
+                <span id="currentRoleBadge" class="btn" style="background: #1e293b; font-size: 12px; padding: 4px 12px;">Rol: Admin</span>
+            </div>
+        </header>
+
+        <main id="mainContainer">
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard" class="tab-content active">
+                <div class="grid grid-4" id="kpiGrid">
+                    <!-- KPIs loaded by JS -->
+                </div>
+                <div class="grid grid-2" style="margin-top: 24px;">
+                    <div class="card">
+                        <h3>Cumplimiento por Dominio</h3>
+                        <canvas id="domainChart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>Tendencia Mensual</h3>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTROLES TAB -->
+            <div id="controles" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3>Catálogo de Controles</h3>
+                        <button class="btn btn-primary" id="btnOpenControlModal">+ Nuevo Control</button>
+                    </div>
+                    <div id="controlsTableContainer">
+                        <!-- Table loaded by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACCIONABLES TAB -->
+            <div id="accionables" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3>Planes de Mejora (Accionables)</h3>
+                        <button class="btn btn-primary" id="btnNewAction">+ Nuevo Accionable</button>
+                    </div>
+                    <div class="grid grid-4" id="actionStats" style="margin-bottom: 24px;">
+                        <!-- Stats loaded by JS -->
+                    </div>
+                    <div id="actionsTableContainer">
+                        <!-- Table loaded by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para Nuevo Control -->
+            <div id="controlModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+                <div class="card" style="width: 600px; max-height: 90vh; overflow-y: auto;">
+                    <h3>Nuevo Control ISO 42001</h3>
+                    <hr style="margin: 16px 0;">
+                    <form id="controlForm" class="grid grid-2">
+                        <div class="form-group">
+                            <label>ID / Código</label>
+                            <input type="text" id="ctrlId" placeholder="Ej: A.2.1" required style="width: 100%; padding: 8px; margin-top: 4px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" id="ctrlNombre" required style="width: 100%; padding: 8px; margin-top: 4px;">
+                        </div>
+                        <div class="form-group col-span-2" style="grid-column: span 2;">
+                            <label>Dominio / Categoría</label>
+                            <select id="ctrlCat" required style="width: 100%; padding: 8px; margin-top: 4px;">
+                                <option>A.2 Políticas</option>
+                                <option>A.3 Organización</option>
+                                <option>A.4 Recursos</option>
+                                <option>A.5 Impacto</option>
+                                <option>A.6 Ciclo de Vida</option>
+                                <option>A.7 Datos</option>
+                                <option>A.8 Información</option>
+                                <option>A.9 Uso</option>
+                                <option>A.10 Terceros</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-span-2" style="grid-column: span 2;">
+                            <label>Descripción</label>
+                            <textarea id="ctrlDesc" rows="3" style="width: 100%; padding: 8px; margin-top: 4px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select id="ctrlEstado" style="width: 100%; padding: 8px; margin-top: 4px;">
+                                <option>No iniciado</option>
+                                <option>En implementación</option>
+                                <option>Implementado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Prioridad</label>
+                            <select id="ctrlPrio" style="width: 100%; padding: 8px; margin-top: 4px;">
+                                <option>Baja</option>
+                                <option>Media</option>
+                                <option>Alta</option>
+                                <option>Crítica</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; grid-column: span 2; margin-top: 16px;">
+                            <button type="button" class="btn" id="btnCloseControlModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Control</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
     </div>
-  </header>
 
-  <nav class="tabs">
-    <button class="tab-button" data-tab="dashboard">Dashboard</button>
-    <button class="tab-button" data-tab="controles">Controles 42001</button>
-    <button class="tab-button" data-tab="config">Configuración</button>
-    <button class="tab-button" data-tab="about">Acerca de</button>
-    <button class="tab-button right" data-tab="login">Login</button>
-  </nav>
+    <div id="toastContainer" class="toast-container"></div>
 
-  <main>
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="tab active" data-report-root="true">
-      <div class="grid gap">
-        <div class="card col-span-2">
-          <div class="row" style="justify-content:space-between;align-items:center">
-            <h2 class="mb-8">Estado actual — <span id="companyDash">—</span></h2>
-            <div class="row">
-              <button id="saveSnapshotDash" class="primary">Guardar Snapshot</button>
-              <button id="exportPdf" class="primary">Exportar Reporte (PDF)</button>
-            </div>
-          </div>
-          <div class="kpi-grid">
-            <div class="kpi">
-              <div class="kpi-number" id="kpiCumpl">%—</div>
-              <div class="kpi-label">Cumplimiento medio</div>
-              <div class="kpi-trend" id="kpiCumplTrend">—</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-number" id="kpiMadur">%—</div>
-              <div class="kpi-label">Madurez media</div>
-              <div class="kpi-trend" id="kpiMadurTrend">—</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-number" id="kpiImpl">%—</div>
-              <div class="kpi-label">% de controles implementados</div>
-              <div class="kpi-trend" id="kpiImplDesc">—</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-number" id="kpiRiesgos">—</div>
-              <div class="kpi-label">Riesgos (controles &lt; 40%)</div>
-              <div class="kpi-trend">Priorizar mitigación</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card col-span-2">
-          <h3>Tendencia actual (0–100%)</h3>
-          <canvas id="trendChart" class="chart-slim"></canvas>
-        </div>
-
-        <div class="card col-span-2" id="cardStatus">
-          <h3>Distribución por Estado</h3>
-          <canvas id="statusChart" class="chart-slim"></canvas>
-        </div>
-
-        <div class="card col-span-2">
-          <h3>Evolución en el tiempo</h3>
-          <canvas id="timeSeriesChart" class="chart-slim"></canvas>
-        </div>
-        
-        <div class="card col-span-2">
-          <h3>Matriz de Cumplimiento vs Madurez</h3>
-          <canvas id="scatterChart" style="height:300px;"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONTROLES -->
-    <section id="controles" class="tab">
-      <div class="controls-header">
-        <h2>Controles ISO/IEC 42001</h2>
-        <div class="row wrap">
-          <button id="btnExportCSV">Exportar CSV</button>
-          <button id="btnExportJSON">Exportar Datos (JSON)</button>
-          <label class="import-btn">
-            Importar Datos (JSON)
-            <input id="importJSON" type="file" accept=".json"/>
-          </label>
-          <button id="btnReset" class="danger">Reiniciar datos</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Control</th>
-                <th>Estado actual</th>
-                <th>Inicio</th>
-                <th>Objetivo</th>
-                <th>Cumpl. %</th>
-                <th>Madur. %</th>
-                <th>Riesgo</th>
-                <th>Impacto</th>
-                <th>Anotaciones</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="controlesBody"></tbody>
-          </table>
-        </div>
-
-        <div class="card" data-role-restricted="edit" style="margin-top:24px; background: #f8fafc;">
-          <h3>Añadir Nuevo Control ISO 42001</h3>
-          <p class="muted mb-4">Ingrese los detalles para un nuevo control personalizado.</p>
-          
-          <div class="control-form-grid">
-            <div class="form-group">
-              <label for="newControlName">Nombre del Control</label>
-              <input type="text" id="newControlName" placeholder="Ej: A.11 Seguridad Física">
-            </div>
-            
-            <div class="form-group">
-              <label for="newControlEstado">Estado Inicial</label>
-              <select id="newControlEstado">
-                <option value="No iniciado">No iniciado</option>
-                <option value="En progreso">En progreso</option>
-                <option value="Implementado">Implementado</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="newControlRisk">Nivel de Riesgo</label>
-              <select id="newControlRisk">
-                <option value="Bajo">Bajo</option>
-                <option value="Medio" selected>Medio</option>
-                <option value="Alto">Alto</option>
-                <option value="Crítico">Crítico</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="newControlImpact">Impacto Evaluado</label>
-              <select id="newControlImpact">
-                <option value="Bajo">Bajo</option>
-                <option value="Medio" selected>Medio</option>
-                <option value="Alto">Alto</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="newControlInicio">Fecha Inicio</label>
-              <input type="date" id="newControlInicio">
-            </div>
-
-            <div class="form-group">
-              <label for="newControlObjetivo">Fecha Objetivo</label>
-              <input type="date" id="newControlObjetivo">
-            </div>
-
-            <div class="form-group">
-              <label for="newControlCumpl">Cumplimiento (%) <small>Efectividad técnica</small></label>
-              <input type="number" id="newControlCumpl" value="0" min="0" max="100">
-            </div>
-
-            <div class="form-group">
-              <label for="newControlMad">Madurez (%) <small>Proceso y cultura</small></label>
-              <input type="number" id="newControlMad" value="0" min="0" max="100">
-            </div>
-
-            <div class="form-group col-span-2">
-              <label for="newControlNotas">Anotaciones / Origen de Datos</label>
-              <input type="text" id="newControlNotas" placeholder="Documentación, fuentes, observaciones...">
-            </div>
-          </div>
-
-          <div class="mt-4 flex justify-end">
-            <button id="addControl" class="primary">Añadir Control</button>
-          </div>
-        </div>
-        <p class="muted" style="margin-top:16px">* Solo roles <strong>auditor</strong> o <strong>admin</strong> pueden editar; <strong>admin</strong> puede reiniciar datos.</p>
-      </div>
-    </section>
-
-    <!-- CONFIGURACION -->
-    <section id="config" class="tab">
-      <div class="card">
-        <h2>Configuración</h2>
-        <h3>EMPRESA</h3>
-        <div class="row">
-          <input id="companyName" type="text" placeholder="Nombre de la empresa"/>
-          <button id="saveCompany" class="primary">Guardar</button>
-        </div>
-
-        <h3>Responsables</h3>
-        <div class="row">
-          <input id="responsableInput" type="text" placeholder="Nombre del responsable"/>
-          <button id="addResponsable" class="primary">Agregar</button>
-        </div>
-        <ul id="responsablesList" class="list"></ul>
-
-        <h3>Anotaciones</h3>
-        <textarea id="extraNotes" rows="6" placeholder="Notas generales, alcances, observaciones..."></textarea>
-        <div class="row">
-          <button id="saveNotes" class="primary">Guardar anotaciones</button>
-          <button id="wipeAll" class="danger" data-role-restricted="admin">Eliminar toda la información</button>
-        </div>
-        
-        <hr style="margin:32px 0; border:0; border-top:1px solid #e2e8f0;">
-
-        <h3>Visualización del Dashboard</h3>
-        <div class="row">
-          <label for="dashMode"><strong>Modo:</strong></label>
-          <select id="dashMode">
-            <option value="torta_linea">Torta + Línea</option>
-            <option value="solo_linea">Solo Línea</option>
-          </select>
-          <button id="saveDashMode" class="primary">Actualizar</button>
-        </div>
-        
-        <hr style="margin:32px 0; border:0; border-top:1px solid #e2e8f0;">
-        
-        <h3>Políticas de IA (Resumen A.2)</h3>
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr><th>Documento</th><th>Estado</th><th>Última Rev.</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Política General de IA</td><td><span class="badge green">Aprobada</span></td><td>2024-03-01</td></tr>
-              <tr><td>Código de Ética Algorítmica</td><td><span class="badge yellow">En revisión</span></td><td>2024-02-15</td></tr>
-              <tr><td>Guía de Uso de IA Generativa</td><td><span class="badge red">Pendiente</span></td><td>—</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section id="about" class="tab">
-      <div class="card">
-        <h2>Acerca de</h2>
-        <p><strong>Track de Cumplimiento ISO/IEC 42001:2023</strong></p>
-        <p>Esta herramienta permite gestionar el ciclo de vida de los sistemas de IA bajo los estándares internacionales de gobernanza y ética.</p>
-        <br>
-        <p><strong>Autor:</strong> Eduardo Restrepo</p>
-        <p><strong>Versión:</strong> 1.6</p>
-      </div>
-    </section>
-
-    <!-- LOGIN / ROLES -->
-    <section id="login" class="tab">
-      <div class="card">
-        <h2>Gestión de Acceso (RBAC)</h2>
-        <p>Seleccione un perfil para ajustar sus permisos en la plataforma:</p>
-        <br>
-        <div class="row">
-          <select id="roleSelect">
-            <option value="viewer">Viewer (Solo Lectura)</option>
-            <option value="auditor">Auditor (Gestión de Controles)</option>
-            <option value="admin">Admin (Acceso Total)</option>
-          </select>
-          <button id="applyRole" class="primary">Cambiar Perfil</button>
-        </div>
-        <p class="muted mt-4">Perfil activo: <strong id="currentRole">viewer</strong></p>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">© 2025 Eduardo Restrepo Consultancy — ISO/IEC 42001 Modern Tracker</footer>
-  <script src="app.js"></script>
+    <script src="js/app.js" type="module"></script>
 </body>
 </html>

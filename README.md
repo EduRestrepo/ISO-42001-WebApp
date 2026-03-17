@@ -1,78 +1,36 @@
-# 🤖 ISO/IEC 42001:2023 Tracker - Modernized Edition
+# ISO/IEC 42001:2023 Implementation Tracker v1.5B
 
-[![Version](https://img.shields.io/badge/version-1.5-blue.svg)](https://github.com/EduRestrepo/ISO-42001-WebApp)
-[![Author](https://img.shields.io/badge/Author-Eduardo%20Restrepo-orange.svg)](https://github.com/EduRestrepo)
-[![Standard](https://img.shields.io/badge/Standard-ISO%2FIEC%2042001%3A2023-green.svg)](https://www.iso.org/standard/81230.html)
+**Autor:** Eduardo Restrepo  
+**Versión:** 1.5B (Enterprise Edition)
 
-A premium, localized, and light-weight web application designed to help organizations track their journey towards **ISO/IEC 42001:2023** compliance. This tool provides a professional dashboard for monitoring Artificial Intelligence Management Systems (AIMS).
+## 📋 Descripción
+Aplicación web profesional para auditar, registrar y gestionar el cumplimiento de la norma ISO/IEC 42001:2023. Permite el seguimiento detallado de controles, responsables, planes de acción y métricas evolutivas.
 
----
+## 🚀 Requisitos
+- [Node.js](https://nodejs.org/) (versión 14 o superior recomendada)
 
-## ✨ Key Features (v1.5)
+## 🛠️ Instalación y Ejecución
+1. Abre una terminal en la carpeta del proyecto.
+2. Instala las dependencias (si no lo has hecho):
+   ```bash
+   npm install
+   ```
+3. Inicia el servidor:
+   ```bash
+   npm start
+   ```
+4. Abre tu navegador en: [http://localhost:3000](http://localhost:3000)
 
-### 📊 Professional Dashboard
-- **Executive KPIs**: Real-time tracking of Implementation Progress, Process Maturity, and Risk Count.
-- **Trend Analysis**: Moving average (PM3) visualization to identify project momentum.
-- **Risk Profile**: Correlate Compliance vs. Maturity using interactive scatter plots.
-- **Snapshots**: Capture historical data points to view evolution over time.
+## 📂 Estructura del Proyecto
+- `server.js`: Servidor backend Node.js que gestiona la persistencia en archivos.
+- `data/`: Directorio donde se almacenan los archivos JSON de datos (empresa, controles, etc.).
+- `index.html`: Estructura principal de la interfaz de usuario.
+- `styles.css`: Sistema de diseño moderno y responsivo.
+- `js/`: Lógica de la aplicación (módulos frontend).
+- `assets/`: Recursos gráficos y logos.
 
-### 🛡️ Compliance Management
-- **Full Annex A Coverage**: Seeded with core ISO 42001 controls (A.1 to A.16).
-- **Risk & Impact Integration**: Tag controls with Risk Levels (Low to Critical) and Impact Categories.
-- **Data Provenance**: Track the lineage and quality of data used in AI models.
-- **RBAC (Role Based Access Control)**: Simulate Viewer, Auditor, and Admin permissions.
-
-### 📄 Export & Reporting
-- **PDF Executive Report**: Generate a professional document with a custom cover, dashboard snapshots, and prioritized "Top 5" findings.
-- **Data Portability**: Export/Import your entire dataset as JSON or CSV.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Any modern web browser (Chrome, Edge, Firefox, Safari).
-- An active internet connection (to load Chart.js and Tailwind-inspired premium assets via CDN).
-
-### Installation
-1. Clone the repository or download the ZIP.
-2. Open `index.html` in your browser.
-3. No database or server setup required — all data is persisted in your browser's `localStorage`.
+## 🔐 Persistencia
+La aplicación utiliza un sistema de persistencia basado en archivos JSON locales, eliminando la necesidad de una base de datos externa y facilitando las copias de seguridad.
 
 ---
-
-## 🛠️ Developer Guide
-
-### Architecture
-- **Structure**: Vanilla HTML5, CSS3 (Modern design system), and ES6+ JavaScript.
-- **Responsiveness**: Mobile-first design using CSS Grid and Flexbox.
-- **Persistence**: `store` module wrapper for `localStorage`.
-- **Charts**: Powered by [Chart.js](https://www.chartjs.org/).
-- **PDF Generation**: [jsPDF](https://parall.ax/products/jspdf) + [html2canvas](https://html2canvas.hertzen.com/).
-
-### Customization
-- To change the primary colors, update the CSS variables in `:root` inside `styles.css`.
-- To modify the default controls, edit the `seedControls` array in `app.js`.
-
----
-
-## ✅ Compliance Checklist (ISO 42001)
-
-When using this tracker, ensure you have documented evidence for:
-- [ ] **A.1 Governance**: Roles and responsibilities defined.
-- [ ] **A.2 Risk Assessment**: Impact assessments for AI systems.
-- [ ] **A.3 Transparency**: System descriptions and documentation.
-- [ ] **A.5 Security**: Protection of models and data integrity.
-- [ ] **A.15 Ethics**: Bias mitigation and fairness checks.
-
----
-
-## 👨‍💻 Author
-**Eduardo Restrepo**  
-*Consultant in AI Governance & Compliance*
-
-## 📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-*Disclaimer: This tool is for tracking purposes and does not constitute official certification. Always consult with a certified ISO 42001 auditor.*
+© 2025 Eduardo Restrepo Consultancy

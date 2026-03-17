@@ -1,0 +1,3 @@
+[
+  { "id": 1, "nombre": "Eduardo Restrepo", "cargo": "CISO", "area": "Seguridad", "email": "eduardo@ejemplo.com", "rol": "Administrador", "estado": "Activo" }
+]

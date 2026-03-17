@@ -1,0 +1,11 @@
+[
+  { "id": "A.2.1", "categoria": "A.2 Políticas", "nombre": "Políticas para IA", "descripcion": "Establecer y revisar políticas para el uso de IA.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Alta", "responsable": "Pendiente" },
+  { "id": "A.3.1", "categoria": "A.3 Organización", "nombre": "Roles y Responsabilidades", "descripcion": "Asignar roles claros para la gobernanza de IA.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Media", "responsable": "Pendiente" },
+  { "id": "A.4.1", "categoria": "A.4 Recursos", "nombre": "Datos para Sistemas de IA", "descripcion": "Gestionar calidad y procedencia de datos.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Alta", "responsable": "Pendiente" },
+  { "id": "A.5.1", "categoria": "A.5 Impacto", "nombre": "Evaluación del Impacto", "descripcion": "Evaluar consecuencias sociales e individuales.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Crítica", "responsable": "Pendiente" },
+  { "id": "A.6.1", "categoria": "A.6 Ciclo de Vida", "nombre": "Diseño y Desarrollo", "descripcion": "Asegurar diseño responsable durante todo el ciclo.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Alta", "responsable": "Pendiente" },
+  { "id": "A.7.4", "categoria": "A.7 Datos", "nombre": "Protección y Privacidad", "descripcion": "Garantizar privacidad en el entrenamiento de IA.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Crítica", "responsable": "Pendiente" },
+  { "id": "A.8.2", "categoria": "A.8 Información", "nombre": "Transparencia del Modelo", "descripcion": "Explicar funcionamiento y sesgos posibles.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Media", "responsable": "Pendiente" },
+  { "id": "A.9.2", "categoria": "A.9 Uso", "nombre": "Supervisión Humana", "descripcion": "Asegurar el control humano sobre decisiones de IA.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Alta", "responsable": "Pendiente" },
+  { "id": "A.10.1", "categoria": "A.10 Terceros", "nombre": "Gestión de Proveedores", "descripcion": "Controlar requisitos de IA en la cadena de suministro.", "estado": "No iniciado", "avance": 0, "madurez": 0, "prioridad": "Media", "responsable": "Pendiente" }
+]
