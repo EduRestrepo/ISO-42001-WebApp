@@ -8,13 +8,20 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    /* Inline fix for layout during transition */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 12px; box-shadow: var(--shadow-md); animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  </style>
 </head>
 <body>
+  <div id="toastContainer" class="toast-container"></div>
   <header class="app-header">
-    <img src="assets/logo.png" class="app-logo" alt="Logo" class="logo"/>
+    <img src="assets/logo.png" class="app-logo" alt="ISO/IEC 42001 Logo"/>
     <div>
       <h1>ISO/IEC 42001 Tracker</h1>
-      <p class="subtitle">Seguimiento de implementación — Autor: <strong>Eduardo Restrepo</strong> — Versión 1.3.8</p>
+      <p class="subtitle">Seguimiento de implementación — Autor: <strong>Eduardo Restrepo</strong> — Versión 1.5</p>
     </div>
   </header>
 
@@ -72,11 +79,7 @@
           <canvas id="statusChart" class="chart-slim"></canvas>
         </div>
 
-        <div class="card col-span-2" id="cardTrend">
-          <h3>Seguimiento (0–100%)</h3>
-          <canvas id="trendChart" class="chart-slim"></canvas>
-        </div>
-              <div class="card col-span-2">
+        <div class="card col-span-2">
           <h3>Evolución en el tiempo</h3>
           <canvas id="timeSeriesChart" class="chart-slim"></canvas>
         </div>
@@ -98,22 +101,25 @@
         </div>
       </div>
       <div class="card">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Control</th>
-              <th>Estado actual</th>
-              <th>Inicio</th>
-              <th>Objetivo</th>
-              <th>Cumplimiento (%)</th>
-              <th>Madurez (%)</th>
-              <th>Anotaciones</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="controlesBody"></tbody>
-        </table>
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Control</th>
+                <th>Estado actual</th>
+                <th>Inicio</th>
+                <th>Objetivo</th>
+                <th>Cumpl. %</th>
+                <th>Madur. %</th>
+                <th>Riesgo</th>
+                <th>Impacto</th>
+                <th>Anotaciones</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="controlesBody"></tbody>
+          </table>
+        </div>
         <div class="row add-control">
           <input id="newControlName" type="text" placeholder="Nombre del control"/>
           <select id="newControlEstado">
@@ -121,18 +127,25 @@
             <option>En progreso</option>
             <option>Implementado</option>
           </select>
+          <select id="newControlRisk">
+            <option value="Bajo">Riesgo Bajo</option>
+            <option value="Medio">Riesgo Medio</option>
+            <option value="Alto">Riesgo Alto</option>
+            <option value="Crítico">Riesgo Crítico</option>
+          </select>
+          <select id="newControlImpact">
+            <option value="Bajo">Impacto Bajo</option>
+            <option value="Medio">Impacto Medio</option>
+            <option value="Alto">Impacto Alto</option>
+          </select>
           <input id="newControlInicio" type="date"/>
           <input id="newControlObjetivo" type="date"/>
           <input id="newControlCumpl" type="number" min="0" max="100" value="0"/>
           <input id="newControlMad" type="number" min="0" max="100" value="0"/>
-          <input id="newControlNotas" type="text" placeholder="Notas"/>
+          <input id="newControlNotas" type="text" placeholder="Notas / Origen datos"/>
           <button id="addControl" class="primary">Agregar</button>
         </div>
-        <p class="muted">* Solo roles <strong>auditor</strong> o <strong>admin</strong> pueden editar; <strong>admin</strong> puede reiniciar datos.</p>
-              <div class="card col-span-2">
-          <h3>Evolución en el tiempo</h3>
-          <canvas id="timeSeriesChart" class="chart-slim"></canvas>
-        </div>
+        <p class="muted" style="margin-top:16px">* Solo roles <strong>auditor</strong> o <strong>admin</strong> pueden editar; <strong>admin</strong> puede reiniciar datos.</p>
       </div>
     </section>
 
@@ -170,10 +183,6 @@
         </div>
         <p class="muted">El modo "Solo Línea" oculta la gráfica de torta para un panel más compacto.</p>
         <p class="muted">La eliminación borra empresa, responsables, notas, controles y snapshots almacenados localmente.</p>
-              <div class="card col-span-2">
-          <h3>Evolución en el tiempo</h3>
-          <canvas id="timeSeriesChart" class="chart-slim"></canvas>
-        </div>
       </div>
     </section>
 
@@ -182,7 +191,7 @@
       <div class="card">
         <h2>Acerca de</h2>
         <p><strong>Autor:</strong> Eduardo Restrepo</p>
-        <p><strong>Versión:</strong> 1.3.8</p>
+        <p><strong>Versión:</strong> 1.5</p>
 
         <h3>Controles de cambios</h3>
         <table class="table">
@@ -225,10 +234,6 @@
           <button id="applyRole" class="primary">Aplicar rol</button>
         </div>
         <p class="muted">Rol actual: <strong id="currentRole">viewer</strong></p>
-              <div class="card col-span-2">
-          <h3>Evolución en el tiempo</h3>
-          <canvas id="timeSeriesChart" class="chart-slim"></canvas>
-        </div>
       </div>
     </section>
   </main>
