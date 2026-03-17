@@ -25,7 +25,18 @@ const seedControls = [
   { id:15, nombre: "A.15 Ética y No Discriminación", estado:"No iniciado", inicio:"", objetivo:"", cumplimiento: 22, madurez: 18, notas:"" },
   { id:16, nombre: "A.16 Gestión de Cambios de IA", estado:"No iniciado", inicio:"", objetivo:"", cumplimiento: 18, madurez: 14, notas:"" }
 ];
-if(!store.get('controles')) store.set('controles', seedControls);
+if(!store.get('controles')) {
+  store.set('controles', seedControls);
+} else {
+  // Simple migration for new fields
+  const cc = store.get('controles');
+  let ch = false;
+  cc.forEach(c => {
+    if(!c.riesgo) { c.riesgo = "Medio"; ch=true; }
+    if(!c.impacto) { c.impacto = "Medio"; ch=true; }
+  });
+  if(ch) store.set('controles', cc);
+}
 if(!store.get('role')) store.set('role', 'viewer');
 if(!store.get('company')) store.set('company', '');
 if(!store.get('responsables')) store.set('responsables', []);
@@ -54,10 +65,29 @@ function movingAvg(arr, k){
 const GOAL = 85;
 function avg(a){ return a.length? a.reduce((x,y)=>x+y,0)/a.length : 0; }
 function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-function badge(value){
-  if(value < 40) return '<span class="badge red">Bajo</span>';
-  if(value < 70) return '<span class="badge yellow">Medio</span>';
+function getBadge(value, type = 'level') {
+  if (type === 'risk') {
+    if (value === 'Crítico') return '<span class="badge red">Crítico</span>';
+    if (value === 'Alto') return '<span class="badge red">Alto</span>';
+    if (value === 'Medio') return '<span class="badge yellow">Medio</span>';
+    return '<span class="badge green">Bajo</span>';
+  }
+  if (value < 40) return '<span class="badge red">Bajo</span>';
+  if (value < 70) return '<span class="badge yellow">Medio</span>';
   return '<span class="badge green">Alto</span>';
+}
+
+function showToast(message) {
+  const container = document.getElementById('toastContainer');
+  if(!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 500);
+  }, 3000);
 }
 
 // CONFIG
@@ -68,7 +98,7 @@ if(companyDash){ companyDash.textContent = store.get('company','') || '—'; }
 if(document.getElementById('saveCompany')) document.getElementById('saveCompany').onclick = ()=>{
   store.set('company', (companyInput?.value||'').trim());
   if(companyDash){ companyDash.textContent = (companyInput?.value||'').trim() || '—'; }
-  alert('Compañía guardada.');
+  showToast('Compañía guardada.');
 };
 
 const respInput = document.getElementById('responsableInput');
@@ -89,14 +119,14 @@ function renderResponsables(){
 }
 renderResponsables();
 if(document.getElementById('addResponsable')) document.getElementById('addResponsable').onclick = ()=>{
-  const role = store.get('role'); if(!['admin','auditor'].includes(role)) return alert('Sin permiso para editar.');
+  const role = store.get('role'); if(!['admin','auditor'].includes(role)) return showToast('Sin permiso para editar.');
   const val = (respInput?.value||'').trim(); if(!val) return;
   const arr = store.get('responsables', []); arr.push(val); store.set('responsables', arr);
   if(respInput) respInput.value=''; renderResponsables(); drawDashboard();
 };
 
 const notesArea = document.getElementById('extraNotes'); if(notesArea) notesArea.value = store.get('notes','');
-if(document.getElementById('saveNotes')) document.getElementById('saveNotes').onclick = ()=>{ store.set('notes', notesArea?.value || ''); alert('Anotaciones guardadas.'); };
+if(document.getElementById('saveNotes')) document.getElementById('saveNotes').onclick = ()=>{ store.set('notes', notesArea?.value || ''); showToast('Anotaciones guardadas.'); };
 
 // Dashboard mode select
 const dashModeSel = document.getElementById('dashMode');
@@ -104,7 +134,7 @@ if(dashModeSel){ dashModeSel.value = store.get('dashboardMode','torta_linea'); }
 if(document.getElementById('saveDashMode')) document.getElementById('saveDashMode').onclick = ()=>{
   const mode = dashModeSel ? dashModeSel.value : 'torta_linea';
   store.set('dashboardMode', mode);
-  alert('Modo de dashboard guardado: ' + mode);
+  showToast('Modo de dashboard guardado: ' + mode);
   drawDashboard();
 };
 
@@ -112,8 +142,8 @@ if(document.getElementById('saveDashMode')) document.getElementById('saveDashMod
 if(document.getElementById('wipeAll')) document.getElementById('wipeAll').onclick = ()=>{
   if(confirm('¿Deseas eliminar TODA la información almacenada localmente? Esta acción no se puede deshacer.')){
     localStorage.clear();
-    alert('Información eliminada. Se recargará la aplicación.');
-    location.reload();
+    showToast('Información eliminada. Recargando...');
+    setTimeout(() => location.reload(), 1000);
   }
 };
 
@@ -139,18 +169,24 @@ function renderControles(){
     const inpC = document.createElement(canEdit?'input':'div'); if(canEdit){ inpC.type='number'; inpC.min=0; inpC.max=100; inpC.value=c.cumplimiento; inpC.onchange = (e)=>{ c.cumplimiento = clamp(Number(e.target.value),0,100); saveControls(controls); drawDashboard(); }; } else { inpC.textContent = c.cumplimiento + '%'; }
     const inpM = document.createElement(canEdit?'input':'div'); if(canEdit){ inpM.type='number'; inpM.min=0; inpM.max=100; inpM.value=c.madurez; inpM.onchange = (e)=>{ c.madurez = clamp(Number(e.target.value),0,100); saveControls(controls); drawDashboard(); }; } else { inpM.textContent = c.madurez + '%'; }
 
+    const riskSel = document.createElement(canEdit?'select':'div');
+    const risks = ["Bajo","Medio","Alto","Crítico"];
+    if(canEdit){ risks.forEach(r=>{ const o=document.createElement('option'); o.textContent=r; riskSel.appendChild(o); }); riskSel.value = c.riesgo || "Medio"; riskSel.onchange = e=>{ c.riesgo=e.target.value; saveControls(controls); }; } else { riskSel.innerHTML = getBadge(c.riesgo || "Medio", 'risk'); }
+
+    const impactSel = document.createElement(canEdit?'select':'div');
+    const impacts = ["Bajo","Medio","Alto"];
+    if(canEdit){ impacts.forEach(r=>{ const o=document.createElement('option'); o.textContent=r; impactSel.appendChild(o); }); impactSel.value = c.impacto || "Medio"; impactSel.onchange = e=>{ c.impacto=e.target.value; saveControls(controls); }; } else { impactSel.textContent = c.impacto || "Medio"; }
+
     const notas = document.createElement(canEdit?'input':'div'); if(canEdit){ notas.type='text'; notas.value=c.notas||""; notas.onchange=e=>{ c.notas=e.target.value; saveControls(controls);} } else { notas.textContent = c.notas || '—'; }
 
-    const estadoBadge = document.createElement('div'); estadoBadge.innerHTML = badge((c.cumplimiento + c.madurez)/2);
-
     const acciones = document.createElement('div'); if(canEdit){
-      const del = document.createElement('button'); del.textContent='Eliminar';
-      del.onclick = ()=>{ controls.splice(i,1); saveControls(controls); drawDashboard(); };
+      const del = document.createElement('button'); del.className = 'danger'; del.textContent='Eliminar';
+      del.onclick = ()=>{ if(confirm('¿Eliminar '+c.nombre+'?')){ controls.splice(i,1); saveControls(controls); drawDashboard(); showToast('Control eliminado'); } };
       acciones.appendChild(del);
     } else { acciones.textContent = '—'; }
 
     function td(el){ const td=document.createElement('td'); td.appendChild(el); return td; }
-    tr.append(td(nameEl), td(estadoSel), td(inpInicio), td(inpObjetivo), td(inpC), td(inpM), td(notas), td(estadoBadge), td(acciones));
+    tr.append(td(nameEl), td(estadoSel), td(inpInicio), td(inpObjetivo), td(inpC), td(inpM), td(riskSel), td(impactSel), td(notas), td(acciones));
     tbody.appendChild(tr);
   });
   updateKpis();
@@ -167,22 +203,25 @@ renderControles();
 
 // Add control
 if(document.getElementById('addControl')) document.getElementById('addControl').onclick = ()=>{
-  const role = store.get('role'); if(!['admin','auditor'].includes(role)) return alert('Sin permiso para editar.');
+  const role = store.get('role'); if(!['admin','auditor'].includes(role)) return showToast('Sin permiso para editar.');
   const name = document.getElementById('newControlName').value.trim();
   const estado = document.getElementById('newControlEstado').value;
+  const riesgo = document.getElementById('newControlRisk').value;
+  const impacto = document.getElementById('newControlImpact').value;
   const inicio = document.getElementById('newControlInicio').value;
   const objetivo = document.getElementById('newControlObjetivo').value;
   const c = Number(document.getElementById('newControlCumpl').value);
   const m = Number(document.getElementById('newControlMad').value);
   const notas = document.getElementById('newControlNotas').value.trim();
-  if(!name) return alert('Nombre requerido');
+  if(!name) return showToast('Nombre requerido');
   const controls = store.get('controles', []);
   const nextId = controls.reduce((max, x)=> Math.max(max, x.id), 0) + 1;
-  controls.push({ id: nextId, nombre: name, estado, inicio, objetivo, cumplimiento: Math.max(0,Math.min(100,c)), madurez: Math.max(0,Math.min(100,m)), notas });
+  controls.push({ id: nextId, nombre: name, estado, riesgo, impacto, inicio, objetivo, cumplimiento: Math.max(0,Math.min(100,c)), madurez: Math.max(0,Math.min(100,m)), notas });
   saveControls(controls);
   ['newControlName','newControlInicio','newControlObjetivo','newControlNotas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('newControlCumpl').value=0; document.getElementById('newControlMad').value=0;
   drawDashboard();
+  showToast('Control agregado: ' + name);
 };
 
 // Export CSV
