@@ -1,74 +1,78 @@
-# Iso42001-WebApp
+# 🤖 ISO/IEC 42001:2023 Tracker - Modernized Edition
 
-# ISO/IEC 42001 Tracker
+[![Version](https://img.shields.io/badge/version-1.5-blue.svg)](https://github.com/EduRestrepo/ISO-42001-WebApp)
+[![Author](https://img.shields.io/badge/Author-Eduardo%20Restrepo-orange.svg)](https://github.com/EduRestrepo)
+[![Standard](https://img.shields.io/badge/Standard-ISO%2FIEC%2042001%3A2023-green.svg)](https://www.iso.org/standard/81230.html)
 
-Aplicación web para **gestionar, registrar, analizar y reportar** el estado de implementación de la norma **ISO/IEC 42001** en una organización.
-
-![Logo](./assets/logo.png)
-
-Creado por Eduardo Restrepo
-eduardo.restrepo@protonmail.ch
+A premium, localized, and light-weight web application designed to help organizations track their journey towards **ISO/IEC 42001:2023** compliance. This tool provides a professional dashboard for monitoring Artificial Intelligence Management Systems (AIMS).
 
 ---
 
-## 🚀 Características principales
+## ✨ Key Features (v1.5)
 
-- **Dashboard interactivo**
-  - KPIs: cumplimiento medio, madurez media, % de controles implementados y riesgos.
-  - Gráficas: distribución por estado (torta), seguimiento horizontal (0–100%) y evolución temporal.
-  - Botones: guardar snapshots y exportar reporte en PDF.
+### 📊 Professional Dashboard
+- **Executive KPIs**: Real-time tracking of Implementation Progress, Process Maturity, and Risk Count.
+- **Trend Analysis**: Moving average (PM3) visualization to identify project momentum.
+- **Risk Profile**: Correlate Compliance vs. Maturity using interactive scatter plots.
+- **Snapshots**: Capture historical data points to view evolution over time.
 
-- **Gestión de controles ISO/IEC 42001**
-  - Lista base de controles predefinidos.
-  - Crear, editar y eliminar controles.
-  - Campos: estado, fechas, cumplimiento %, madurez %, anotaciones.
-  - Exportar/Importar en CSV y JSON.
+### 🛡️ Compliance Management
+- **Full Annex A Coverage**: Seeded with core ISO 42001 controls (A.1 to A.16).
+- **Risk & Impact Integration**: Tag controls with Risk Levels (Low to Critical) and Impact Categories.
+- **Data Provenance**: Track the lineage and quality of data used in AI models.
+- **RBAC (Role Based Access Control)**: Simulate Viewer, Auditor, and Admin permissions.
 
-- **Configuración**
-  - Definir empresa, responsables y anotaciones generales.
-  - Eliminar toda la información (con confirmación).
-  - Cambiar el modo del Dashboard (Torta + Línea o Solo Línea).
-
-- **Acerca de**
-  - Autor: **Eduardo Restrepo**.
-  - Control de versiones con changelog.
-
-- **Roles (RBAC)**
-  - `viewer`: solo lectura.
-  - `auditor`: editar controles.
-  - `admin`: acceso completo y reinicio de datos.
+### 📄 Export & Reporting
+- **PDF Executive Report**: Generate a professional document with a custom cover, dashboard snapshots, and prioritized "Top 5" findings.
+- **Data Portability**: Export/Import your entire dataset as JSON or CSV.
 
 ---
 
-## 📊 Reportes en PDF
+## 🚀 Getting Started
 
-El botón **Exportar Reporte (PDF)** genera un documento con:
+### Prerequisites
+- Any modern web browser (Chrome, Edge, Firefox, Safari).
+- An active internet connection (to load Chart.js and Tailwind-inspired premium assets via CDN).
 
-1. **Portada**: logo, empresa, fecha, responsables.
-2. **Dashboard completo** como imagen.
-3. **Hallazgos (Top 5)**: controles con menor promedio de cumplimiento + madurez.
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-- **HTML5 / CSS3 / JavaScript**
-- **Chart.js** – para gráficos.
-- **html2canvas** – para capturas.
-- **jsPDF** – para generación de PDF.
-- **LocalStorage** – persistencia de datos local.
+### Installation
+1. Clone the repository or download the ZIP.
+2. Open `index.html` in your browser.
+3. No database or server setup required — all data is persisted in your browser's `localStorage`.
 
 ---
 
-## 📂 Estructura del proyecto
+## 🛠️ Developer Guide
 
-```bash
-├── index.html       # Página principal
-├── styles.css       # Estilos
-├── app.js           # Lógica de la aplicación
-├── assets/
-│   └── logo.png     # Logo corporativo
-└── docs/
-    └── Manual_Usuario_ISO42001.pdf  # Manual de Usuario
+### Architecture
+- **Structure**: Vanilla HTML5, CSS3 (Modern design system), and ES6+ JavaScript.
+- **Responsiveness**: Mobile-first design using CSS Grid and Flexbox.
+- **Persistence**: `store` module wrapper for `localStorage`.
+- **Charts**: Powered by [Chart.js](https://www.chartjs.org/).
+- **PDF Generation**: [jsPDF](https://parall.ax/products/jspdf) + [html2canvas](https://html2canvas.hertzen.com/).
 
+### Customization
+- To change the primary colors, update the CSS variables in `:root` inside `styles.css`.
+- To modify the default controls, edit the `seedControls` array in `app.js`.
 
+---
+
+## ✅ Compliance Checklist (ISO 42001)
+
+When using this tracker, ensure you have documented evidence for:
+- [ ] **A.1 Governance**: Roles and responsibilities defined.
+- [ ] **A.2 Risk Assessment**: Impact assessments for AI systems.
+- [ ] **A.3 Transparency**: System descriptions and documentation.
+- [ ] **A.5 Security**: Protection of models and data integrity.
+- [ ] **A.15 Ethics**: Bias mitigation and fairness checks.
+
+---
+
+## 👨‍💻 Author
+**Eduardo Restrepo**  
+*Consultant in AI Governance & Compliance*
+
+## 📜 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+*Disclaimer: This tool is for tracking purposes and does not constitute official certification. Always consult with a certified ISO 42001 auditor.*
